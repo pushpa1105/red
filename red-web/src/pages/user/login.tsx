@@ -1,32 +1,29 @@
-import { Box, Button, FormControl, FormLabel, Input } from "@chakra-ui/react";
-import { Form, Formik, FormikHelpers, FormikValues } from "formik";
 import React from "react";
 import { Wrapper } from "../../components/Wrapper";
-import { InputField } from "../../components/InputField";
-import { useMutation } from "urql";
-import { useRegisterMutation } from "../../generated/graphql";
+import { Form, Formik } from "formik";
+import { useLoginMutation } from "../../generated/graphql";
 import { toErrorMap } from "../../utils/toErrorMap";
+import { Box, Button } from "@chakra-ui/react";
+import { InputField } from "../../components/InputField";
 
-interface RegisterProps {}
+interface LoginProps {}
 
 interface FormInputProps {
-  username:string;
+  username: string;
   password: string;
-
 }
 
-const Register: React.FC<RegisterProps> = ({}) => {
-  const [, register] = useRegisterMutation();
-  const submitAction = async (values: FormInputProps, { setErrors }: any) => {
-    console.log(values);
-    const res = await register(values);
-    console.log(res);
-    if (res.data?.register?.errors) {
-      setErrors(toErrorMap(res.data.register.errors));
-    }
+const Login: React.FC<LoginProps> = ({}) => {
+  const [, login] = useLoginMutation();
 
-    return res;
+  const submitAction = async (values: FormInputProps, { setErrors }: any) => {
+    const res = await login(values);
+
+    if (res.data?.login?.errors) {
+      setErrors(toErrorMap(res.data.login.errors));
+    }
   };
+
   return (
     <Wrapper>
       <Formik
@@ -55,7 +52,7 @@ const Register: React.FC<RegisterProps> = ({}) => {
               />
             </Box>
             <Button mt={4} color="teal" type="submit" isLoading={isSubmitting}>
-              Register
+              Login
             </Button>
           </Form>
         )}
@@ -64,4 +61,4 @@ const Register: React.FC<RegisterProps> = ({}) => {
   );
 };
 
-export default Register;
+export default Login;
