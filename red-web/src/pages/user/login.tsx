@@ -5,6 +5,7 @@ import { useLoginMutation } from "../../generated/graphql";
 import { toErrorMap } from "../../utils/toErrorMap";
 import { Box, Button } from "@chakra-ui/react";
 import { InputField } from "../../components/InputField";
+import { useRouter } from "next/router";
 
 interface LoginProps {}
 
@@ -14,6 +15,7 @@ interface FormInputProps {
 }
 
 const Login: React.FC<LoginProps> = ({}) => {
+  const router = useRouter();
   const [, login] = useLoginMutation();
 
   const submitAction = async (values: FormInputProps, { setErrors }: any) => {
@@ -21,6 +23,8 @@ const Login: React.FC<LoginProps> = ({}) => {
 
     if (res.data?.login?.errors) {
       setErrors(toErrorMap(res.data.login.errors));
+    }else if(res.data?.login.user) {
+      router.push("/")
     }
   };
 

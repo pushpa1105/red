@@ -6,6 +6,7 @@ import theme from "../theme";
 import { AppProps } from "next/app";
 import {
   LoginMutation,
+  LogoutMutation,
   MeDocument,
   MeQuery,
   Query,
@@ -27,6 +28,15 @@ const client = new Client({
     cacheExchange({
       updates: {
         Mutation: {
+          logout: (_result, args, cache, info) => {
+            betterUpdateQuery<LogoutMutation, MeQuery>(
+              cache,
+              { query: MeDocument },
+              _result,
+              () => ({ me: null })
+            );
+          },
+
           login: (_result: LoginMutation, args, cache, info) => {
             // cache.updateQuery({query: MeDocument}, (data: MeQuery) => {});
             betterUpdateQuery<LoginMutation, MeQuery>(
@@ -44,6 +54,7 @@ const client = new Client({
               }
             );
           },
+
           register: (_result: RegisterMutation, args, cache, info) => {
             // cache.updateQuery({query: MeDocument}, (data: MeQuery) => {});
             betterUpdateQuery<RegisterMutation, MeQuery>(
