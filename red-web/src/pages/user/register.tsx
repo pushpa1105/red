@@ -6,6 +6,7 @@ import { InputField } from "../../components/InputField";
 import { useMutation } from "urql";
 import { useRegisterMutation } from "../../generated/graphql";
 import { toErrorMap } from "../../utils/toErrorMap";
+import { useRouter } from "next/router";
 
 interface RegisterProps {}
 
@@ -16,6 +17,7 @@ interface FormInputProps {
 }
 
 const Register: React.FC<RegisterProps> = ({}) => {
+  const router = useRouter();
   const [, register] = useRegisterMutation();
   const submitAction = async (values: FormInputProps, { setErrors }: any) => {
     console.log(values);
@@ -23,6 +25,8 @@ const Register: React.FC<RegisterProps> = ({}) => {
     console.log(res);
     if (res.data?.register?.errors) {
       setErrors(toErrorMap(res.data.register.errors));
+    } else if (res.data?.register.user) {
+      router.push("/");
     }
 
     return res;
