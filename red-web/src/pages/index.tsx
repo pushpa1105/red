@@ -1,13 +1,23 @@
 import React from "react";
 import { NavBar } from "../components/NavBar";
-const Index = () => (
-<>
-<NavBar />
-<div>Hello WOrd</div>;
-</>
-);
+import { createUrqlClient } from "../utils/createUrqlClient";
+import { withUrqlClient } from "next-urql";
+import { usePostsQuery } from "../generated/graphql";
+const Index = () => {
+  const [{ data }] = usePostsQuery();
+  return (
+    <>
+      <NavBar />
+      {data?.posts ? (
+        data?.posts.map((p) => <li key={p.id}>{p.title}</li>)
+      ) : (
+        <div>Hello WOrd</div>
+      )}
+    </>
+  );
+};
 
-export default Index;
+export default withUrqlClient(createUrqlClient, { ssr: true })(Index);
 
 // import {
 //   Link as ChakraLink,

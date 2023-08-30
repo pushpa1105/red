@@ -6,6 +6,8 @@ import { toErrorMap } from "../../utils/toErrorMap";
 import { Box, Button } from "@chakra-ui/react";
 import { InputField } from "../../components/InputField";
 import { useRouter } from "next/router";
+import { createUrqlClient } from "../../utils/createUrqlClient";
+import { withUrqlClient } from "next-urql";
 
 interface LoginProps {}
 
@@ -23,8 +25,8 @@ const Login: React.FC<LoginProps> = ({}) => {
 
     if (res.data?.login?.errors) {
       setErrors(toErrorMap(res.data.login.errors));
-    }else if(res.data?.login.user) {
-      router.push("/")
+    } else if (res.data?.login.user) {
+      router.push("/");
     }
   };
 
@@ -65,4 +67,4 @@ const Login: React.FC<LoginProps> = ({}) => {
   );
 };
 
-export default Login;
+export default withUrqlClient(createUrqlClient)(Login);
