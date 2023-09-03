@@ -3,20 +3,18 @@ import nodemailer from "nodemailer";
 // async..await is not allowed in global scope, must use a wrapper
 export async function sendEmail(to: string, text: string) {
 
-    const testAccount = await nodemailer.createTestAccount();
-    console.log('-----testaccount----', testAccount);
-
-    const transporter = nodemailer.createTransport({
-        // host: "smtp.forwardemail.net",
-        host: "smtppro.zoho.in",
-        port: 465,
-        secure: true,
+  //used mailtrap for nodemailer
+  //url: https://mailtrap.io/ 
+  //go to inboxes & integrations for this
+      const transporter = nodemailer.createTransport({
+        host: "sandbox.smtp.mailtrap.io",
+        port: 2525,
         auth: {
-          // TODO: replace `user` and `pass` values from <https://forwardemail.net>
-          user: testAccount.user,
-          pass: testAccount.pass,
-        },
+          user: "44ff6f7238f60b",
+          pass: "2784ea760d7d75"
+        }
       });
+
   // send mail with defined transport object
   const info = await transporter.sendMail({
     from: '"Fred Foo 👻" <foo@example.com>', // sender address
