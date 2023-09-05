@@ -16,10 +16,10 @@ import session from "express-session";
 
 import { MyContext } from "./types";
 import cors from "cors";
-import { sendEmail } from "./utils/sendEmail";
+// import { sendEmail } from "./utils/sendEmail";
 
 const main = async () => {
-  sendEmail("test@test.com", "Reset password!!!");
+  // sendEmail("test@test.com", "Reset password!!!");
   const orm = await MikroORM.init(mikroOrmConfig); //connect db
 
   await orm.getMigrator().up(); //run migrations

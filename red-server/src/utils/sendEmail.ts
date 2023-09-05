@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer";
 
 // async..await is not allowed in global scope, must use a wrapper
-export async function sendEmail(to: string, text: string) {
+export async function sendEmail(to: string, html: string) {
 
   //used mailtrap for nodemailer
   //url: https://mailtrap.io/ 
@@ -20,7 +20,7 @@ export async function sendEmail(to: string, text: string) {
     from: '"Fred Foo 👻" <foo@example.com>', // sender address
     to: to, // list of receivers
     subject: "Change Password", // Subject line
-    text: text, // plain text body
+    html, // plain text body
     // html: "<b>Hello world?</b>", // html body
   });
 
