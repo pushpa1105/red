@@ -37,7 +37,7 @@ export const NavBar: React.FC<NavBarProps> = ({ }) => {
         {data?.me ? (
           <>
             <Flex my={"auto"}>
-              <Box>
+              <Box my={"auto"}>
                 <Tag size="lg" colorScheme="red" borderRadius="full">
                   <Avatar
                     src="https://bit.ly/sage-adebayo"
@@ -49,7 +49,7 @@ export const NavBar: React.FC<NavBarProps> = ({ }) => {
                   <TagLabel>{data?.me?.username}</TagLabel>
                 </Tag>
               </Box>
-              <Box>
+              <Box my={"auto"} ml={4}>
                 <Button
                   colorScheme="facebook"
                   onClick={logoutAction}
