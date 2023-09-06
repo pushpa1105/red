@@ -14,9 +14,10 @@ import * as argon2 from "argon2";
 // import { RequiredEntityData } from "@mikro-orm/core";
 import { EntityManager } from "@mikro-orm/postgresql";
 import { COOKIE_NAME } from "../constants";
+import { validateRegister } from "../utils/validateRegister";
 
 @InputType()
-class UsernamePasswordInput {
+export class UsernamePasswordInput {
   @Field()
   username: string;
 
@@ -62,27 +63,10 @@ export class UserResolver {
     @Arg("options") options: UsernamePasswordInput,
     @Ctx() { em }: MyContext
   ): Promise<UserResponse> {
-    if (!options.email.includes('@')) {
-      return {
-        errors: [
-          {
-            field: "email",
-            message: "Invalid email.",
-          },
-        ],
-      } as UserResponse;
-    }
 
-    if (options.password.length < 8) {
-      return {
-        errors: [
-          {
-            field: "password",
-            message: "Password must be atleast 8 characters.",
-          },
-        ],
-      } as UserResponse;
-    }
+    const errors = await validateRegister(options);
+
+    if (errors) return { errors } as UserResponse;
 
     const hashedPassword = await argon2.hash(options.password);
 
