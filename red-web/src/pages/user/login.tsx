@@ -12,7 +12,7 @@ import { withUrqlClient } from "next-urql";
 interface LoginProps {}
 
 interface FormInputProps {
-  username: string;
+  usernameOrEmail: string;
   password: string;
 }
 
@@ -21,6 +21,7 @@ const Login: React.FC<LoginProps> = ({}) => {
   const [, login] = useLoginMutation();
 
   const submitAction = async (values: FormInputProps, { setErrors }: any) => {
+    console.log(values);
     const res = await login(values);
 
     if (res.data?.login?.errors) {
@@ -33,7 +34,7 @@ const Login: React.FC<LoginProps> = ({}) => {
   return (
     <Wrapper>
       <Formik
-        initialValues={{ username: "", password: "" }}
+        initialValues={{ usernameOrEmail: "", password: "" }}
         onSubmit={submitAction}
         // onSubmit={function (
         //   values: FormikValues,
@@ -45,9 +46,9 @@ const Login: React.FC<LoginProps> = ({}) => {
         {({ isSubmitting }) => (
           <Form>
             <InputField
-              label="Username"
-              name="username"
-              placeholder="username"
+              label="Username/Email"
+              name="usernameOrEmail"
+              placeholder="Username or Email"
             />
             <Box mt={4}>
               <InputField

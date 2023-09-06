@@ -111,7 +111,7 @@ export class UserResolver {
     const user = await em.findOne(User, usernameOrEmail.includes('@') ? { email: usernameOrEmail } : { username: usernameOrEmail });
     if (!user) {
       return {
-        errors: [{ field: "email", message: "User not found." }],
+        errors: [{ field: "usernameOrEmail", message: "User not found." }],
       } as UserResponse;
     }
     const valid = await argon2.verify(user.password, password);

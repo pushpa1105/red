@@ -17,9 +17,9 @@ import { createUrqlClient } from "../utils/createUrqlClient";
 import { withUrqlClient } from "next-urql";
 // import NextLink from "next/link";
 
-interface NavBarProps {}
+interface NavBarProps { }
 
-export const NavBar: React.FC<NavBarProps> = ({}) => {
+export const NavBar: React.FC<NavBarProps> = ({ }) => {
   const [{ data, fetching }] = useMeQuery({ pause: isServer() });
   console.log("-----daata--------", data);
   const [{ fetching: LogoutFetching }, logout] = useLogoutMutation();
@@ -33,48 +33,44 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
   };
   return (
     <Flex bg={"blue"} padding={5}>
-      {fetching ? (
-        <div>LOading...</div>
-      ) : (
-        <Box ml={"auto"}>
-          {data?.me ? (
-            <>
-              <Flex my={"auto"}>
-                <Box>
-                  <Tag size="lg" colorScheme="red" borderRadius="full">
-                    <Avatar
-                      src="https://bit.ly/sage-adebayo"
-                      size="xs"
-                      name="Segun Adebayo"
-                      ml={-1}
-                      mr={2}
-                    />
-                    <TagLabel>{data?.me?.username}</TagLabel>
-                  </Tag>
-                </Box>
-                <Box>
-                  <Button
-                    colorScheme="facebook"
-                    onClick={logoutAction}
-                    isLoading={LogoutFetching}
-                  >
-                    LogOut
-                  </Button>
-                </Box>
-              </Flex>
-            </>
-          ) : (
-            <>
-              <CLink as={Link} mr={2} href={"/user/login"}>
-                Login
-              </CLink>
-              <CLink as={Link} href={"/user/register"}>
-                Register
-              </CLink>
-            </>
-          )}
-        </Box>
-      )}
+      <Box ml={"auto"}>
+        {data?.me ? (
+          <>
+            <Flex my={"auto"}>
+              <Box>
+                <Tag size="lg" colorScheme="red" borderRadius="full">
+                  <Avatar
+                    src="https://bit.ly/sage-adebayo"
+                    size="xs"
+                    name="Segun Adebayo"
+                    ml={-1}
+                    mr={2}
+                  />
+                  <TagLabel>{data?.me?.username}</TagLabel>
+                </Tag>
+              </Box>
+              <Box>
+                <Button
+                  colorScheme="facebook"
+                  onClick={logoutAction}
+                  isLoading={LogoutFetching}
+                >
+                  LogOut
+                </Button>
+              </Box>
+            </Flex>
+          </>
+        ) : (
+          <>
+            <CLink as={Link} mr={2} href={"/user/login"}>
+              Login
+            </CLink>
+            <CLink as={Link} href={"/user/register"}>
+              Register
+            </CLink>
+          </>
+        )}
+      </Box>
     </Flex>
   );
 };

@@ -9,14 +9,15 @@ import { useRegisterMutation } from "../../generated/graphql";
 import { createUrqlClient } from "../../utils/createUrqlClient";
 import { toErrorMap } from "../../utils/toErrorMap";
 
-interface RegisterProps {}
+interface RegisterProps { }
 
 interface FormInputProps {
   username: string;
+  email: string;
   password: string;
 }
 
-const Register: React.FC<RegisterProps> = ({}) => {
+const Register: React.FC<RegisterProps> = ({ }) => {
   const router = useRouter();
   const [, register] = useRegisterMutation();
   const submitAction = async (values: FormInputProps, { setErrors }: any) => {
@@ -34,14 +35,14 @@ const Register: React.FC<RegisterProps> = ({}) => {
   return (
     <Wrapper>
       <Formik
-        initialValues={{ username: "", password: "" }}
+        initialValues={{ username: "", email: "", password: "" }}
         onSubmit={submitAction}
-        // onSubmit={function (
-        //   values: FormikValues,
-        //   formikHelpers: FormikHelpers<FormikValues>
-        // ): void | Promise<any> {
-        //   throw new Error("Function not implemented.");
-        // }}
+      // onSubmit={function (
+      //   values: FormikValues,
+      //   formikHelpers: FormikHelpers<FormikValues>
+      // ): void | Promise<any> {
+      //   throw new Error("Function not implemented.");
+      // }}
       >
         {({ isSubmitting }) => (
           <Form>
@@ -50,6 +51,14 @@ const Register: React.FC<RegisterProps> = ({}) => {
               name="username"
               placeholder="username"
             />
+            <Box mt={4}>
+              <InputField
+                label="Email"
+                name="email"
+                placeholder="Email"
+                type="email"
+              />
+            </Box>
             <Box mt={4}>
               <InputField
                 label="Password"
