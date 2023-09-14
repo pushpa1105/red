@@ -13,8 +13,10 @@ import {
 import * as argon2 from "argon2";
 // import { RequiredEntityData } from "@mikro-orm/core";
 import { EntityManager } from "@mikro-orm/postgresql";
-import { COOKIE_NAME } from "../constants";
+import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from "../constants";
 import { validateRegister } from "../utils/validateRegister";
+import { v4 } from "uuid";
+import { sendEmail } from "../utils/sendEmail";
 
 @InputType()
 export class UsernamePasswordInput {
@@ -63,7 +65,6 @@ export class UserResolver {
     @Arg("options") options: UsernamePasswordInput,
     @Ctx() { em }: MyContext
   ): Promise<UserResponse> {
-
     const errors = await validateRegister(options);
 
     if (errors) return { errors } as UserResponse;
@@ -108,7 +109,12 @@ export class UserResolver {
     @Arg("password") password: string,
     @Ctx() { em, req }: MyContext
   ): Promise<UserResponse> {
-    const user = await em.findOne(User, usernameOrEmail.includes('@') ? { email: usernameOrEmail } : { username: usernameOrEmail });
+    const user = await em.findOne(
+      User,
+      usernameOrEmail.includes("@")
+        ? { email: usernameOrEmail }
+        : { username: usernameOrEmail }
+    );
     if (!user) {
       return {
         errors: [{ field: "usernameOrEmail", message: "User not found." }],
@@ -141,10 +147,27 @@ export class UserResolver {
     });
   }
 
-  // @Mutation(() => Boolean)
-  // async forgotPassword(
-  //   @Arg('email') email: string,
-  //   @Ctx() { em }: MyContext) {
-  //   const user = await em.findOne(User, { email })
-  // }
+  @Mutation(() => Boolean)
+  async forgotPassword(
+    @Arg("email") email: string,
+    @Ctx() { em, redis }: MyContext
+  ) {
+    const user = await em.findOne(User, { email });
+    if (!user) return true;
+
+    const token = v4();
+    await redis.set(
+      FORGET_PASSWORD_PREFIX + token,
+      user.id,
+      "ex",
+      1000 * 60 * 60 * 24 * 3
+    ); //3 days
+
+    await sendEmail(
+      email,
+      `<a href="http://localhost:3000/change-password/${token}">Reset Password</a>`
+    );
+
+    return true;
+  }
 }

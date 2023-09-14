@@ -11,7 +11,8 @@ import { UserResolver } from "./resolvers/user";
 
 //redis imports
 import connectRedis from "connect-redis";
-import redis from "redis";
+// import redis from "redis";
+import Redis from "ioredis";
 import session from "express-session";
 
 import { MyContext } from "./types";
@@ -27,7 +28,7 @@ const main = async () => {
   const app = express();
 
   const RedisStore = connectRedis(session);
-  const redisClient = redis.createClient(); // Initialize client.
+  const redis = new Redis(); // Initialize client.
 
   app.use(
     cors({
@@ -40,7 +41,7 @@ const main = async () => {
     session({
       name: COOKIE_NAME,
       store: new RedisStore({
-        client: redisClient,
+        client: redis,
         disableTouch: true,
         // disableTTL: true,
       }),
@@ -61,7 +62,7 @@ const main = async () => {
       resolvers: [HelloResolver, PostResolver, UserResolver],
       validate: false,
     }),
-    context: ({ req, res }): MyContext => ({ em: orm.em, req, res }),
+    context: ({ req, res }): MyContext => ({ em: orm.em, req, res, redis }),
   });
   // app.get('/',(_,res)=>{
   //   res.send('hello');
