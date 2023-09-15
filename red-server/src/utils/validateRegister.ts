@@ -1,32 +1,39 @@
 import { UsernamePasswordInput } from "src/resolvers/user";
 
 export const validateRegister = (options: UsernamePasswordInput) => {
-    if (!options.email.includes('@')) {
-        return [
-            {
-                field: "email",
-                message: "Invalid email.",
-            },
-        ];
-    }
+  const passwordError = validatePassword(options.password);
 
-    if (options.password.length < 8) {
-        return [
-            {
-                field: "password",
-                message: "Password must be atleast 8 characters.",
-            },
-        ];
-    };
+  if (passwordError) return passwordError;
 
-    if (options.username.includes('@')) {
-        return [
-            {
-                field: 'username',
-                message: 'Invalid username'
-            }
-        ]
-    }
+  const emailError = validateEmail(options.email);
 
-    return null;
+  if (emailError) return emailError;
+
+  return null;
+};
+
+export const validatePassword = (password: string) => {
+  if (password.length < 8) {
+    return [
+      {
+        field: "password",
+        message: "Password must be atleast 8 characters.",
+      },
+    ];
+  }
+
+  return null;
+};
+
+export const validateEmail = (email: string) => {
+  if (!email.includes("@")) {
+    return [
+      {
+        field: "email",
+        message: "Invalid email.",
+      },
+    ];
+  }
+
+  return null;
 };
