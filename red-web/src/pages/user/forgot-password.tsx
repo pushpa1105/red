@@ -22,7 +22,7 @@ const ForgotPassword = () => {
     console.log(res.data?.forgotPassword);
     if (res.data?.forgotPassword) {
       setError('');
-      setSuccess("Email sent successfully.");
+      setSuccess("Email sent successfully. Check you email.");
     } else {
       setSuccess('');
       setError("Failed to sent email.");

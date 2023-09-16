@@ -1,4 +1,4 @@
-import { Box, Button, Link as CLink } from "@chakra-ui/react";
+import { Box, Button, Link as CLink, Flex } from "@chakra-ui/react";
 import { Formik, Form } from "formik";
 import { NextPage } from "next";
 import React, { useState } from "react";
@@ -49,15 +49,22 @@ const ChangePassword: NextPage<{ token: string }> = ({ token }) => {
                 type="password"
               />
               {error && <Box style={{ color: "red" }}>{error}</Box>}
-              <Box>
+            </Box>
+            <Flex>
+              <Button
+                mt={4}
+                color="teal"
+                type="submit"
+                isLoading={isSubmitting}
+              >
+                New Password
+              </Button>
+              <Box marginTop={6} marginRight={8}>
                 <CLink as={Link} mr={2} href={"/user/forgot-password"}>
-                  Resend email
+                  Resend email?
                 </CLink>
               </Box>
-            </Box>
-            <Button mt={4} color="teal" type="submit" isLoading={isSubmitting}>
-              New Password
-            </Button>
+            </Flex>
           </Form>
         )}
       </Formik>
