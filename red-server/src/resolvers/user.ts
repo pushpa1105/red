@@ -12,12 +12,13 @@ import {
 } from "type-graphql";
 import * as argon2 from "argon2";
 // import { RequiredEntityData } from "@mikro-orm/core";
-import { EntityManager } from "@mikro-orm/postgresql";
+// import { EntityManager } from "@mikro-orm/postgresql";
 import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from "../constants";
 import { validatePassword, validateRegister } from "../utils/validateRegister";
 import { v4 } from "uuid";
 import { sendEmail } from "../utils/sendEmail";
 import { setError } from "../utils/setReturnValue";
+import { dataSource } from "../index";
 
 @InputType()
 export class UsernamePasswordInput {
@@ -52,19 +53,18 @@ class UserResponse {
 @Resolver()
 export class UserResolver {
   @Query(() => User, { nullable: true })
-  async me(@Ctx() { req, em }: MyContext) {
+  async me(@Ctx() { req }: MyContext) {
     if (!req.session!.userId) {
       return null;
     }
 
-    const user = await em.findOne(User, { id: req.session!.userId });
+    const user = await User.findOneBy({ id: req.session!.userId });
     return user;
   }
 
   @Mutation(() => UserResponse)
   async register(
-    @Arg("options") options: UsernamePasswordInput,
-    @Ctx() { em }: MyContext
+    @Arg("options") options: UsernamePasswordInput
   ): Promise<UserResponse> {
     const errors = await validateRegister(options);
 
@@ -79,18 +79,27 @@ export class UserResolver {
     // } as RequiredEntityData<User>);
 
     try {
-      const result = await (em as EntityManager)
-        .createQueryBuilder(User)
-        .getKnexQuery()
-        .insert({
-          username: options.username,
-          email: options.email,
-          password: hashedPassword,
-          created_at: new Date(),
-          updated_at: new Date(),
-        })
-        .returning("*");
-      user = result[0];
+      const result = await dataSource
+        .createQueryBuilder()
+        .insert()
+        .into(User)
+        .values([{ username: options.username, password: hashedPassword }])
+        .returning("*")
+        .execute();
+      // const result = await (em as EntityManager)
+      //   .createQueryBuilder(User)
+      //   .getKnexQuery()
+      //   .insert({
+      //     username: options.username,
+      //     email: options.email,
+      //     password: hashedPassword,
+      //     created_at: new Date(),
+      //     updated_at: new Date(),
+      //   })
+      //   .returning("*");
+      // user = result[0];
+      console.log("🚀 ~ file: user.ts:90 ~ UserResolver ~ result:", result);
+      user = result.raw;
       // await em.persistAndFlush(user);
     } catch (err) {
       console.log(err);
@@ -108,10 +117,9 @@ export class UserResolver {
   async login(
     @Arg("usernameOrEmail") usernameOrEmail: string,
     @Arg("password") password: string,
-    @Ctx() { em, req }: MyContext
+    @Ctx() { req }: MyContext
   ): Promise<UserResponse> {
-    const user = await em.findOne(
-      User,
+    const user = await User.findOneBy(
       usernameOrEmail.includes("@")
         ? { email: usernameOrEmail }
         : { username: usernameOrEmail }
@@ -151,9 +159,9 @@ export class UserResolver {
   @Mutation(() => Boolean)
   async forgotPassword(
     @Arg("email") email: string,
-    @Ctx() { em, redis }: MyContext
+    @Ctx() { redis }: MyContext
   ) {
-    const user = await em.findOne(User, { email });
+    const user = await User.findOneBy({ email });
     if (!user) return false;
 
     const token = v4();
@@ -176,7 +184,7 @@ export class UserResolver {
   async changePassword(
     @Arg("token") token: string,
     @Arg("newPassword") newPassword: string,
-    @Ctx() { redis, em, req }: MyContext
+    @Ctx() { redis, req }: MyContext
   ): Promise<UserResponse> {
     const errors = validatePassword(newPassword);
 
@@ -187,14 +195,14 @@ export class UserResolver {
     if (!userId)
       return { errors: setError("token", "Token expired") } as UserResponse;
 
-    const user = await em.findOne(User, { id: parseInt(userId) });
+    const user = await User.findOneBy({ id: parseInt(userId) });
 
     if (!user)
       return { errors: setError("token", "Token expired") } as UserResponse;
 
     user.password = await argon2.hash(newPassword);
 
-    await em.persistAndFlush(user);
+    await User.update({ ...user }, { ...user });
 
     redis.del(key);
     req.session!.userId = user.id;

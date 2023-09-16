@@ -1,13 +1,15 @@
 import "reflect-metadata";
-import { MikroORM } from "@mikro-orm/core";
+// import { MikroORM } from "@mikro-orm/core";
 import { COOKIE_NAME, __prod__ } from "./constants";
-import mikroOrmConfig from "./mikro-orm.config";
+// import mikroOrmConfig from "./mikro-orm.config";
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
 import { HelloResolver } from "./resolvers/hello";
 import { PostResolver } from "./resolvers/post";
 import { UserResolver } from "./resolvers/user";
+
+import { DataSource } from "typeorm";
 
 //redis imports
 import connectRedis from "connect-redis";
@@ -17,13 +19,26 @@ import session from "express-session";
 
 import { MyContext } from "./types";
 import cors from "cors";
+import { User } from "./entities/User";
+import { Post } from "./entities/Post";
 // import { sendEmail } from "./utils/sendEmail";
 
-const main = async () => {
-  // sendEmail("test@test.com", "Reset password!!!");
-  const orm = await MikroORM.init(mikroOrmConfig); //connect db
+export const dataSource = new DataSource({
+  type: "postgres",
+  database: "red2",
+  username: "buffmomo",
+  password: "buffmomo",
+  logging: true,
+  synchronize: true,
+  entities: [User, Post],
+});
 
-  await orm.getMigrator().up(); //run migrations
+const main = async () => {
+
+  await dataSource.initialize();
+  // const orm = await MikroORM.init(mikroOrmConfig); //connect db
+
+  // await orm.getMigrator().up(); //run migrations
 
   const app = express();
 
@@ -62,7 +77,7 @@ const main = async () => {
       resolvers: [HelloResolver, PostResolver, UserResolver],
       validate: false,
     }),
-    context: ({ req, res }): MyContext => ({ em: orm.em, req, res, redis }),
+    context: ({ req, res }): MyContext => ({ req, res, redis }),
   });
   // app.get('/',(_,res)=>{
   //   res.send('hello');
