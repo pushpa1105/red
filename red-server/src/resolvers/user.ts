@@ -11,8 +11,6 @@ import {
   Resolver,
 } from "type-graphql";
 import * as argon2 from "argon2";
-// import { RequiredEntityData } from "@mikro-orm/core";
-// import { EntityManager } from "@mikro-orm/postgresql";
 import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from "../constants";
 import { validatePassword, validateRegister } from "../utils/validateRegister";
 import { v4 } from "uuid";
@@ -73,34 +71,22 @@ export class UserResolver {
     const hashedPassword = await argon2.hash(options.password);
 
     let user;
-    // const user = em.create(User, {
-    //   username: options.username,
-    //   password: hashedPassword,
-    // } as RequiredEntityData<User>);
 
     try {
       const result = await dataSource
         .createQueryBuilder()
         .insert()
         .into(User)
-        .values([{ username: options.username, password: hashedPassword }])
+        .values([
+          {
+            username: options.username,
+            password: hashedPassword,
+            email: options.email,
+          },
+        ])
         .returning("*")
         .execute();
-      // const result = await (em as EntityManager)
-      //   .createQueryBuilder(User)
-      //   .getKnexQuery()
-      //   .insert({
-      //     username: options.username,
-      //     email: options.email,
-      //     password: hashedPassword,
-      //     created_at: new Date(),
-      //     updated_at: new Date(),
-      //   })
-      //   .returning("*");
-      // user = result[0];
-      console.log("🚀 ~ file: user.ts:90 ~ UserResolver ~ result:", result);
-      user = result.raw;
-      // await em.persistAndFlush(user);
+      user = result.raw[0];
     } catch (err) {
       console.log(err);
       if (err.code === "23505") {
@@ -200,9 +186,10 @@ export class UserResolver {
     if (!user)
       return { errors: setError("token", "Token expired") } as UserResponse;
 
-    user.password = await argon2.hash(newPassword);
-
-    await User.update({ ...user }, { ...user });
+    await User.update(
+      { id: parseInt(userId) },
+      { password: await argon2.hash(newPassword) }
+    );
 
     redis.del(key);
     req.session!.userId = user.id;

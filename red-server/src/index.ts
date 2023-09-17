@@ -34,7 +34,6 @@ export const dataSource = new DataSource({
 });
 
 const main = async () => {
-
   await dataSource.initialize();
   // const orm = await MikroORM.init(mikroOrmConfig); //connect db
 
