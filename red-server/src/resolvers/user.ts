@@ -121,6 +121,8 @@ export class UserResolver {
         errors: [{ field: "password", message: "Incorrect password" }],
       } as UserResponse;
     }
+
+    // TODO: cookie issue ,need to fix redis-session issue with typeorm
     req.session!.userId = user.id;
 
     return { user } as UserResponse;
