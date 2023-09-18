@@ -9,7 +9,9 @@ import {
   Mutation,
   Query,
   Resolver,
+  UseMiddleware,
 } from "type-graphql";
+import { isAuth } from "../middleware/isAuth";
 
 @InputType()
 class PostInput {
@@ -33,15 +35,12 @@ export class PostResolver {
   }
 
   @Mutation(() => Post)
+  @UseMiddleware(isAuth)
   async createPost(
     @Arg("input") input: PostInput,
     @Ctx() { req }: MyContext
   ): Promise<Post> {
-    const userId = req.session!.userId;
-    console.log(req.session)
-
-    if (!userId) throw new Error("No Authentication");
-    return Post.create({ ...input, creatorId: userId }).save();
+    return Post.create({ ...input, creatorId: req.session!.userId }).save();
   }
 
   @Mutation(() => Post)
