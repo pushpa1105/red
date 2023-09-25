@@ -19,7 +19,7 @@ const ForgotPassword = () => {
     { setErrors }: any
   ) => {
     const res = await forgotPassword(values);
-    console.log(res.data?.forgotPassword);
+    // console.log(res.data?.forgotPassword);
     if (res.data?.forgotPassword) {
       setError('');
       setSuccess("Email sent successfully. Check you email.");

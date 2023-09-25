@@ -7,11 +7,14 @@ import {
   InputType,
   Int,
   Mutation,
+  ObjectType,
   Query,
   Resolver,
   UseMiddleware,
 } from "type-graphql";
 import { isAuth } from "../middleware/isAuth";
+import { validateEmptyValue } from "../utils/validateEmptyValue";
+import { FieldError } from "./user";
 
 @InputType()
 class PostInput {
@@ -20,6 +23,15 @@ class PostInput {
 
   @Field()
   text: string;
+}
+
+@ObjectType()
+class PostResponse {
+  @Field(() => [FieldError], { nullable: true })
+  errors: FieldError[];
+
+  @Field(() => Post, { nullable: true })
+  post: Post;
 }
 
 @Resolver()
@@ -34,13 +46,25 @@ export class PostResolver {
     return Post.findOneBy({ id });
   }
 
-  @Mutation(() => Post)
+  @Mutation(() => PostResponse)
   @UseMiddleware(isAuth)
   async createPost(
     @Arg("input") input: PostInput,
     @Ctx() { req }: MyContext
-  ): Promise<Post> {
-    return Post.create({ ...input, creatorId: req.session!.userId }).save();
+  ): Promise<PostResponse> {
+    const { title, text } = input;
+    let errors = [];
+    const titleError = validateEmptyValue({ field: "title", value: title });
+    if (titleError) errors.push(titleError);
+    const textError = validateEmptyValue({ field: "text", value: text });
+    if (textError) errors.push(textError);
+
+    if (errors && errors.length > 0) return { errors } as PostResponse;
+    const post = await Post.create({
+      ...input,
+      creatorId: req.session!.userId,
+    }).save();
+    return { post } as PostResponse;
   }
 
   @Mutation(() => Post)

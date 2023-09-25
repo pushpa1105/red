@@ -21,9 +21,7 @@ const Register: React.FC<RegisterProps> = ({ }) => {
   const router = useRouter();
   const [, register] = useRegisterMutation();
   const submitAction = async (values: FormInputProps, { setErrors }: any) => {
-    console.log(values);
     const res = await register(values);
-    console.log(res);
     if (res.data?.register?.errors) {
       setErrors(toErrorMap(res.data.register.errors));
     } else if (res.data?.register.user) {

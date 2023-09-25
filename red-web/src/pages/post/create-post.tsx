@@ -6,14 +6,28 @@ import { InputField } from "../../components/InputField";
 import { withUrqlClient } from "next-urql";
 import { createUrqlClient } from "../../utils/createUrqlClient";
 import { PostInput, useCreatePostMutation } from "../../generated/graphql";
+import { useRouter } from "next/router";
+import { toErrorMap } from "../../utils/toErrorMap";
 
 const CreatePost = () => {
   const [, createPost] = useCreatePostMutation();
+  const route = useRouter();
 
   const submitAction = async (values: PostInput, { setErrors }: any) => {
     const res = await createPost({ input: values });
-
     console.log(res);
+    if (res?.error?.graphQLErrors) {
+      setErrors(
+        toErrorMap([
+          { field: "text", message: res?.error?.graphQLErrors[0].message },
+        ])
+      );
+    } else if (res?.data?.createPost?.errors) {
+      setErrors(toErrorMap(res?.data?.createPost?.errors));
+    } else if (res?.data?.createPost?.post) {
+      console.log(res?.data?.createPost?.post);
+      route.push("/post");
+    }
   };
 
   return (
@@ -32,7 +46,12 @@ const CreatePost = () => {
           <Form>
             <InputField label="Title" name="title" placeholder="Title" />
             <Box mt={4}>
-              <InputField label="Text" name="text" placeholder="Text" />
+              <InputField
+                label="Text"
+                name="text"
+                placeholder="Text"
+                textarea
+              />
             </Box>
             <Flex justifyContent={"space-between"}>
               <Button

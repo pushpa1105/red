@@ -19,7 +19,6 @@ const ChangePassword: NextPage<{ token: string }> = ({ token }) => {
   const submitAction = async (values: { newPassword: string }) => {
     console.log({ ...values, token });
     const res = await changePassword({ ...values, token });
-    console.log("🚀 ~ file: [token].tsx:17 ~ res:", res);
 
     if (res.data?.changePassword?.errors) {
       setError(res.data.changePassword.errors[0].message);

@@ -20,30 +20,14 @@ export type FieldError = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  createPost: Post;
-  updatePost: Post;
-  deletePost: Scalars['Boolean'];
   register: UserResponse;
   login: UserResponse;
   logout: Scalars['Boolean'];
   forgotPassword: Scalars['Boolean'];
   changePassword: UserResponse;
-};
-
-
-export type MutationCreatePostArgs = {
-  input: PostInput;
-};
-
-
-export type MutationUpdatePostArgs = {
-  title?: Maybe<Scalars['String']>;
-  id: Scalars['Float'];
-};
-
-
-export type MutationDeletePostArgs = {
-  id: Scalars['Float'];
+  createPost: PostResponse;
+  updatePost: Post;
+  deletePost: Scalars['Boolean'];
 };
 
 
@@ -68,6 +52,22 @@ export type MutationChangePasswordArgs = {
   token: Scalars['String'];
 };
 
+
+export type MutationCreatePostArgs = {
+  input: PostInput;
+};
+
+
+export type MutationUpdatePostArgs = {
+  title?: Maybe<Scalars['String']>;
+  id: Scalars['Float'];
+};
+
+
+export type MutationDeletePostArgs = {
+  id: Scalars['Float'];
+};
+
 export type Post = {
   __typename?: 'Post';
   id: Scalars['Int'];
@@ -84,12 +84,18 @@ export type PostInput = {
   text: Scalars['String'];
 };
 
+export type PostResponse = {
+  __typename?: 'PostResponse';
+  errors?: Maybe<Array<FieldError>>;
+  post?: Maybe<Post>;
+};
+
 export type Query = {
   __typename?: 'Query';
   hello: Scalars['String'];
+  me?: Maybe<User>;
   posts: Array<Post>;
   post?: Maybe<Post>;
-  me?: Maybe<User>;
 };
 
 
@@ -152,8 +158,14 @@ export type CreatePostMutationVariables = Exact<{
 export type CreatePostMutation = (
   { __typename?: 'Mutation' }
   & { createPost: (
-    { __typename?: 'Post' }
-    & Pick<Post, 'id' | 'title' | 'text' | 'creatorId'>
+    { __typename?: 'PostResponse' }
+    & { errors?: Maybe<Array<(
+      { __typename?: 'FieldError' }
+      & Pick<FieldError, 'field' | 'message'>
+    )>>, post?: Maybe<(
+      { __typename?: 'Post' }
+      & Pick<Post, 'id' | 'title' | 'text' | 'creatorId'>
+    )> }
   ) }
 );
 
@@ -265,10 +277,16 @@ export function useChangePasswordMutation() {
 export const CreatePostDocument = gql`
     mutation CreatePost($input: PostInput!) {
   createPost(input: $input) {
-    id
-    title
-    text
-    creatorId
+    errors {
+      field
+      message
+    }
+    post {
+      id
+      title
+      text
+      creatorId
+    }
   }
 }
     `;

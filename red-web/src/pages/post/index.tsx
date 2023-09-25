@@ -8,7 +8,7 @@ import { Box } from "@chakra-ui/react";
 
 const Post = () => {
   const [{ data }] = usePostsQuery();
-  console.log("🚀 ~ file: index.tsx:11 ~ Post ~ data:", data);
+  // console.log("🚀 ~ file: index.tsx:11 ~ Post ~ data:", data);
 
   return (
     <Layout>
@@ -16,7 +16,7 @@ const Post = () => {
         {data?.posts ? (
           data?.posts.map((post) => (
             <Box mt={4}>
-              <PostCard Post={post} />
+              <PostCard Post={post} key={post.id} />
             </Box>
           ))
         ) : (

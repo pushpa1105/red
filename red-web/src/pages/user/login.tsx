@@ -22,7 +22,7 @@ const Login: React.FC<LoginProps> = ({}) => {
   const [, login] = useLoginMutation();
 
   const submitAction = async (values: FormInputProps, { setErrors }: any) => {
-    console.log(values);
+    // console.log(values);
     const res = await login(values);
 
     if (res.data?.login?.errors) {

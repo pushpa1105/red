@@ -21,7 +21,7 @@ interface NavBarProps { }
 
 export const NavBar: React.FC<NavBarProps> = ({ }) => {
   const [{ data, fetching }] = useMeQuery({ pause: isServer() });
-  console.log("-----daata--------", data);
+  // console.log("-----daata--------", data);
   const [{ fetching: LogoutFetching }, logout] = useLogoutMutation();
   const router = useRouter();
 
