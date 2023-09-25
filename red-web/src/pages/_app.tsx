@@ -65,7 +65,7 @@ import theme from "../theme";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-      <ChakraProvider theme={theme}>
+      <ChakraProvider theme={theme} toastOptions={{ defaultOptions: { position: 'bottom' } }}>
         <Component {...pageProps} />
       </ChakraProvider>
   );

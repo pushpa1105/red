@@ -16,13 +16,7 @@ const CreatePost = () => {
   const submitAction = async (values: PostInput, { setErrors }: any) => {
     const res = await createPost({ input: values });
     console.log(res);
-    if (res?.error?.graphQLErrors) {
-      setErrors(
-        toErrorMap([
-          { field: "text", message: res?.error?.graphQLErrors[0].message },
-        ])
-      );
-    } else if (res?.data?.createPost?.errors) {
+    if (res?.data?.createPost?.errors) {
       setErrors(toErrorMap(res?.data?.createPost?.errors));
     } else if (res?.data?.createPost?.post) {
       console.log(res?.data?.createPost?.post);
