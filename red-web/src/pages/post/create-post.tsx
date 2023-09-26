@@ -18,8 +18,7 @@ const CreatePost = () => {
   const [{ data, fetching }] = useMeQuery();
   const [, createPost] = useCreatePostMutation();
   const route = useRouter();
-
-  useIsAuth();
+  useIsAuth(route.pathname);
 
   const submitAction = async (values: PostInput, { setErrors }: any) => {
     const res = await createPost({ input: values });
