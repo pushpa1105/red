@@ -3,8 +3,14 @@ import { NavBar } from "../components/NavBar";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { withUrqlClient } from "next-urql";
 import { usePostsQuery } from "../generated/graphql";
+import { useRouter } from "next/router";
 const Index = () => {
   const [{ data }] = usePostsQuery();
+  const route = useRouter();
+
+  const goToCreatePostPage = () => {
+    route.push("/post/create-post");
+  };
   return (
     <>
       <NavBar />
@@ -13,6 +19,7 @@ const Index = () => {
       ) : (
         <div>Hello WOrd</div>
       )}
+      <button onClick={goToCreatePostPage}>Create Post</button>
     </>
   );
 };

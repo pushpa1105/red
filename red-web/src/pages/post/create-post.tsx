@@ -1,17 +1,25 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Layout from "../../components/Layout";
 import { Flex, Button, Box } from "@chakra-ui/react";
 import { Formik, Form } from "formik";
 import { InputField } from "../../components/InputField";
 import { withUrqlClient } from "next-urql";
 import { createUrqlClient } from "../../utils/createUrqlClient";
-import { PostInput, useCreatePostMutation } from "../../generated/graphql";
+import {
+  PostInput,
+  useCreatePostMutation,
+  useMeQuery,
+} from "../../generated/graphql";
 import { useRouter } from "next/router";
 import { toErrorMap } from "../../utils/toErrorMap";
+import { useIsAuth } from "../../utils/useIsAuth";
 
 const CreatePost = () => {
+  const [{ data, fetching }] = useMeQuery();
   const [, createPost] = useCreatePostMutation();
   const route = useRouter();
+
+  useIsAuth();
 
   const submitAction = async (values: PostInput, { setErrors }: any) => {
     const res = await createPost({ input: values });
