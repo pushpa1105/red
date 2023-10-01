@@ -21,6 +21,7 @@ import { MyContext } from "./types";
 import cors from "cors";
 import { User } from "./entities/User";
 import { Post } from "./entities/Post";
+import path from "path";
 // import { sendEmail } from "./utils/sendEmail";
 
 export const dataSource = new DataSource({
@@ -30,11 +31,14 @@ export const dataSource = new DataSource({
   password: "buffmomo",
   logging: true,
   synchronize: true,
+  migrations: [path.join(__dirname, "./migrations/*")],
   entities: [User, Post],
 });
 
 const main = async () => {
   await dataSource.initialize();
+
+  dataSource.runMigrations();
   // const orm = await MikroORM.init(mikroOrmConfig); //connect db
 
   // await orm.getMigrator().up(); //run migrations

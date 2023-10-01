@@ -15,6 +15,7 @@ import {
 import { isAuth } from "../middleware/isAuth";
 import { validateEmptyValue } from "../utils/validateEmptyValue";
 import { FieldError } from "./user";
+import { dataSource } from "../index";
 
 @InputType()
 class PostInput {
@@ -37,8 +38,25 @@ class PostResponse {
 @Resolver()
 export class PostResolver {
   @Query(() => [Post])
-  posts(): Promise<Post[]> {
-    return Post.find();
+  posts(
+    @Arg("limit", () => Int) limit: number,
+    @Arg("cursor", { nullable: true }) cursor: string
+  ): Promise<Post[]> {
+    const postLimit = Math.min(limit, 20);
+
+    const getPostsQuery = dataSource
+      .getRepository(Post)
+      .createQueryBuilder("user")
+      .orderBy('"createdAt"', "DESC")
+      .take(postLimit);
+
+    if (cursor) {
+      getPostsQuery.where('"createdAt" < :cursor', {
+        cursor: new Date(parseInt(cursor)),
+      });
+    }
+
+    return getPostsQuery.getMany();
   }
 
   @Query(() => Post, { nullable: true })
