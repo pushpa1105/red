@@ -38,6 +38,9 @@ export const createUrqlClient = (ssrExchange: any) => ({
   url: "http://localhost:4000/graphql",
   exchanges: [
     cacheExchange({
+      keys: {
+        PaginatedPost: () => null,
+      },
       resolvers: {
         Query: {
           posts: cursorPagination(),
@@ -146,16 +149,27 @@ export const cursorPagination = (): Resolver => {
     }
 
     const fieldKey = `${fieldName}(${stringifyVariables(fieldArgs)})`;
-    const hasInCache = cache.resolve(entityKey, fieldKey);
+    const hasInCache = cache.resolve(
+      cache.resolve(entityKey, fieldKey) as string,
+      "posts"
+    );
     info.partial = !hasInCache;
-    const results: string[] = [];
+    const posts = [] as string[];
+    let hasMore = true;
 
     fieldInfos.forEach((field) => {
-      const data = cache.resolve(entityKey, field.fieldKey) as string[];
-      results.push(...data);
+      const key = cache.resolve(entityKey, field.fieldKey) as string;
+      const data = cache.resolve(key, "posts") as string[];
+      const _hasMore = cache.resolve(key, "hasMore") as boolean;
+      hasMore = _hasMore;
+      posts.push(...data);
     });
 
-    return results;
+    return {
+      __typename: "PaginatedPost",
+      hasMore,
+      posts,
+    };
 
     // const visited = new Set();
     // let result: NullArray<string> = [];
