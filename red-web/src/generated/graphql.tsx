@@ -83,6 +83,7 @@ export type Post = {
   text: Scalars['String'];
   points: Scalars['Float'];
   creatorId: Scalars['Float'];
+  creator: User;
 };
 
 export type PostInput = {
@@ -265,6 +266,11 @@ export type PostsQuery = (
     & { posts: Array<(
       { __typename?: 'Post' }
       & Pick<Post, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'text' | 'creatorId'>
+      & { creator: (
+        { __typename?: 'User' }
+        & Pick<User, 'createdAt' | 'updatedAt'>
+        & CommonUserFragment
+      ) }
     )> }
   ) }
 );
@@ -387,10 +393,15 @@ export const PostsDocument = gql`
       title
       text
       creatorId
+      creator {
+        ...CommonUser
+        createdAt
+        updatedAt
+      }
     }
   }
 }
-    `;
+    ${CommonUserFragmentDoc}`;
 
 export function usePostsQuery(options: Omit<Urql.UseQueryArgs<PostsQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<PostsQuery>({ query: PostsDocument, ...options });

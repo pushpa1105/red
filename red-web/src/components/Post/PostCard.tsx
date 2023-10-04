@@ -20,21 +20,24 @@ const PostCard = ({ Post }: any) => {
     id,
     createdAt,
     creatorId = 1,
+    creator,
     title = "No Title",
     text = "No text",
   } = Post;
-  const creatorName = creatorId ? "Test Name" : "No name";
-    return (
+  return (
     <>
       <Card maxW="md">
         <CardHeader>
           <Flex>
             <Flex flex="1" gap="4" alignItems="center" flexWrap="wrap">
-              <Avatar name={creatorName} src="https://bit.ly/sage-adebayo" />
+              <Avatar
+                name={creator.username}
+                src="https://bit.ly/sage-adebayo"
+              />
 
               <Box>
-                <Heading size="sm">{title}</Heading>
-                <Text>{title}</Text>
+                <Heading size="sm">{creator.username}</Heading>
+                <Text>{creator.email}</Text>
               </Box>
             </Flex>
             {/* <IconButton
@@ -46,6 +49,7 @@ const PostCard = ({ Post }: any) => {
           </Flex>
         </CardHeader>
         <CardBody>
+          <Heading size="sm">{title}</Heading>
           <Text>{text}</Text>
         </CardBody>
         <Image

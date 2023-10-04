@@ -54,19 +54,44 @@ export class PostResolver {
     const postLimit = Math.min(limit, 20);
     const postLimitPlus = Math.min(limit, 20) + 1;
 
-    const getPostsQuery = dataSource
-      .getRepository(Post)
-      .createQueryBuilder("user")
-      .orderBy('"createdAt"', "DESC")
-      .take(postLimitPlus);
+    const replacements: any[] = [postLimitPlus];
 
     if (cursor) {
-      getPostsQuery.where('"createdAt" < :cursor', {
-        cursor: new Date(parseInt(cursor)),
-      });
+      replacements.push(new Date(parseInt(cursor)));
     }
 
-    const posts = await getPostsQuery.getMany();
+    const posts = await dataSource.query(
+      `
+      select p.*, 
+      json_build_object(
+        'id', u.id,
+        'username', u.username,
+        'email', u.email,
+        'createdAt', u."createdAt",
+        'updatedAt', u."updatedAt"
+      ) creator
+      from post p
+      inner join public.user u on u.id = p."creatorId"
+      ${cursor ? `where p."createdAt" < $2` : ""}
+      order by p."createdAt" DESC
+      limit $1
+      `,
+      replacements
+    );
+
+    // const getPostsQuery = dataSource
+    //   .getRepository(Post)
+    //   .createQueryBuilder("user")
+    //   .orderBy('"createdAt"', "DESC")
+    //   .take(postLimitPlus);
+
+    // if (cursor) {
+    //   getPostsQuery.where('"createdAt" < :cursor', {
+    //     cursor: new Date(parseInt(cursor)),
+    //   });
+    // }
+
+    // const posts = await getPostsQuery.getMany();
 
     return {
       posts: posts.slice(0, postLimit),
